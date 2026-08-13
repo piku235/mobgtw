@@ -34,7 +34,7 @@ jobs:
           echo "certs=/etc/mosquitto/certs" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libmosquitto-dev libssl-dev
+        run: sudo apt-get update && sudo apt-get install -y libmosquitto-dev libssl-dev libcjson-dev
 
       - name: Generate certs
         run: |

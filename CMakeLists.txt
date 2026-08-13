@@ -15,7 +15,6 @@ include(FetchContent)
 cmake_dependent_option(MOBGTW_BUILD_TESTS "Build mobgtw tests" ON "PROJECT_IS_TOP_LEVEL AND BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING" OFF)
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(MOSQUITTO REQUIRED IMPORTED_TARGET libmosquitto)
 pkg_check_modules(OPENSSL REQUIRED IMPORTED_TARGET libcrypto)
 
 set(EXPECTED_BUILD_TESTS OFF)
@@ -27,6 +26,27 @@ FetchContent_Declare(
   EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(tl_expected)
+
+set(WITH_TLS_PSK OFF)
+set(WITH_TESTS OFF)
+set(WITH_SOCKS OFF)
+set(WITH_WEBSOCKETS OFF)
+set(WITH_SRV OFF)
+set(WITH_STATIC_LIBRARIES ON)
+set(WITH_PIC ON)
+set(WITH_CLIENTS OFF)
+set(WITH_BROKER OFF)
+set(WITH_APPS OFF)
+set(WITH_PLUGINS OFF)
+set(DOCUMENTATION OFF)
+
+FetchContent_Declare(
+  mosquitto
+  URL https://github.com/eclipse-mosquitto/mosquitto/archive/refs/tags/v2.0.22.zip
+  EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(mosquitto)
+target_include_directories(libmosquitto_static INTERFACE ${mosquitto_SOURCE_DIR}/lib)
 
 add_subdirectory(proto)
 add_subdirectory(src/crypto)
@@ -66,7 +86,7 @@ target_link_libraries(mobgtw
   PRIVATE
     common_compiler_warnings
     PkgConfig::OPENSSL
-    PkgConfig::MOSQUITTO
+    libmosquitto_static
     crypto
 )
 
