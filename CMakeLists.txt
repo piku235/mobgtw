@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(mobgtw VERSION 0.9.0)
+project(mobgtw VERSION 0.10.0)
 
 cmake_policy(SET CMP0135 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
