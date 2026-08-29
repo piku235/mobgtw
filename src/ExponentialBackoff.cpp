@@ -10,12 +10,8 @@ ExponentialBackoff::ExponentialBackoff(std::chrono::milliseconds baseDelay, std:
     , mDelay(baseDelay)
     , mMaxDelay(maxDelay)
     , mFactor(factor)
+    , mGenerator(std::random_device {}())
 {
-}
-
-void ExponentialBackoff::next()
-{
-    mDelay = std::min(mDelay * mFactor, mMaxDelay);
 }
 
 void ExponentialBackoff::reset()
@@ -23,9 +19,15 @@ void ExponentialBackoff::reset()
     mDelay = mBaseDelay;
 }
 
-std::chrono::milliseconds ExponentialBackoff::delay() const
+std::chrono::milliseconds ExponentialBackoff::next()
 {
-    return std::chrono::milliseconds(rand() % mDelay.count());
+    auto delay = mDelay;
+    std::uniform_int_distribution<std::chrono::milliseconds::rep> rand(0, delay.count());
+
+    delay = std::chrono::milliseconds(rand(mGenerator));
+    mDelay = std::min(mDelay * 2, mMaxDelay);
+
+    return delay;
 }
 
 }

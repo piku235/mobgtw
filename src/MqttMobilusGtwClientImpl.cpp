@@ -502,7 +502,7 @@ void MqttMobilusGtwClientImpl::handleInvalidSession()
 
     (void)disconnect();
 
-    mReconnectTimerId = mLoop.startTimer(mReconnectDelay.delay(), reconnectTimerCallback, this);
+    mReconnectTimerId = mLoop.startTimer(mReconnectDelay.next(), reconnectTimerCallback, this);
     mReconnecting = true;
 }
 
@@ -515,7 +515,7 @@ void MqttMobilusGtwClientImpl::handleLostConnection(int rc)
     mLogger.error("MQTT connection lost: " + std::string(mosquitto_strerror(rc)));
 
     mLoop.unwatchSocket(mosquitto_socket(mMosq));
-    mReconnectTimerId = mLoop.startTimer(mReconnectDelay.delay(), reconnectTimerCallback, this);
+    mReconnectTimerId = mLoop.startTimer(mReconnectDelay.next(), reconnectTimerCallback, this);
 
     mConnected = false;
     mReconnecting = true;
@@ -564,9 +564,7 @@ void MqttMobilusGtwClientImpl::reconnect()
     mLogger.info("Reconnecting to MQTT broker and mobilus");
 
     if (!connect()) {
-        mReconnectDelay.next();
-        mReconnectTimerId = mLoop.startTimer(mReconnectDelay.delay(), reconnectTimerCallback, this);
-
+        mReconnectTimerId = mLoop.startTimer(mReconnectDelay.next(), reconnectTimerCallback, this);
         return;
     }
 
