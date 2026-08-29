@@ -28,16 +28,15 @@ public:
 private:
     using Impl = MockMqttMobilusActorImpl;
 
-    std::thread mSelf;
+    std::jthread mSelf;
     std::string mHost;
     uint16_t mPort;
     std::mutex mMutex;
     std::promise<void> mReady;
     std::queue<std::unique_ptr<Impl::Command>> mQueue;
-    bool mStop = false;
     int mWakeFd[2] = { -1, -1 };
 
-    void run();
+    void run(std::stop_token stoken);
     void wakeUp();
     void consumeWakeUp();
     void post(std::unique_ptr<Impl::Command> cmd);

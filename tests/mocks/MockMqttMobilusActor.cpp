@@ -26,13 +26,13 @@ void MockMqttMobilusActor::start()
 {
     auto readyFut = mReady.get_future();
 
-    mSelf = std::thread([this]() { run(); });
+    mSelf = std::jthread([this](std::stop_token stoken) { run(stoken); });
     readyFut.wait();
 }
 
 void MockMqttMobilusActor::stop()
 {
-    mStop = true;
+    mSelf.request_stop();
     wakeUp();
 
     if (mSelf.joinable()) {
@@ -55,7 +55,7 @@ void MockMqttMobilusActor::share(std::unique_ptr<const google::protobuf::Message
     post(std::make_unique<Impl::ShareMessageCommand>(std::move(message)));
 }
 
-void MockMqttMobilusActor::run()
+void MockMqttMobilusActor::run(std::stop_token stoken)
 {
     Impl impl(std::move(mHost), mPort);
 
@@ -73,7 +73,7 @@ void MockMqttMobilusActor::run()
     fd_set readFds;
     fd_set writeFds;
 
-    while (!mStop && kInvalidFd != impl.socketFd()) {
+    while (!stoken.stop_requested() && kInvalidFd != impl.socketFd()) {
         const int socketFd = impl.socketFd();
 
         FD_ZERO(&readFds);
@@ -122,7 +122,7 @@ void MockMqttMobilusActor::run()
 
 void MockMqttMobilusActor::post(std::unique_ptr<Impl::Command> cmd)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
+    std::lock_guard lock(mMutex);
     mQueue.push(std::move(cmd));
     wakeUp();
 }
@@ -149,7 +149,7 @@ void MockMqttMobilusActor::consumeWakeUp()
 
 void MockMqttMobilusActor::processQueue(Impl& impl)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
+    std::lock_guard lock(mMutex);
 
     while (!mQueue.empty()) {
         auto& cmd = mQueue.front();
