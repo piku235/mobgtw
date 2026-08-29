@@ -28,10 +28,10 @@ using jungi::mobgtw::tests::mocks::MockMqttMobilusActor;
 
 namespace {
 
-static const auto kMqttDsn = MqttDsn::from("mqtt://127.0.0.1:1883").value();
-static const auto kMqttsDsn = MqttDsn::from("mqtts://admin:nimda@127.0.0.1:8883?cacert=/etc/mosquitto/certs/server.crt&verify=false").value();
-static const MobilusCredentials kMobCreds = { "admin", "admin" };
-static constexpr std::chrono::milliseconds kTimeout(500);
+const auto kMqttDsn = MqttDsn::from("mqtt://127.0.0.1:1883").value();
+const auto kMqttsDsn = MqttDsn::from("mqtts://admin:nimda@127.0.0.1:8883?cacert=/etc/mosquitto/certs/server.crt&verify=false").value();
+const MobilusCredentials kMobCreds = { "admin", "admin" };
+constexpr std::chrono::milliseconds kTimeout(500);
 
 void fakeMqttBroker(std::condition_variable* cv, std::mutex* mutex, bool* ready)
 {
@@ -147,7 +147,7 @@ TEST(MqttMobilusGtwClientImplTest, ConnectionTimedOut)
     MqttMobilusGtwClientImpl client(MqttDsn::from("mqtt://127.0.0.1:2883").value(), kMobCreds, std::chrono::milliseconds(1), kTimeout);
     std::thread fakeBroker(fakeMqttBroker, &cv, &mutex, &ready);
 
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock lock(mutex);
     cv.wait(lock, [&]() -> bool { return ready; });
     ready = false;
 
@@ -172,7 +172,7 @@ TEST(MqttMobilusGtwClientImplTest, ConnectionRefusedOnFailedAuthorization)
     dsn.password = "invalid";
 
     MqttMobilusGtwClientImpl client(std::move(dsn), kMobCreds, kTimeout, kTimeout);
-    MockMqttMobilusActor mobilusActor("127.0.0.1", 8883);
+    MockMqttMobilusActor mobilusActor("127.0.0.1", 1883);
 
     mobilusActor.start();
 
