@@ -17,7 +17,7 @@ Use this client to:
 
 ## Requirements
 
-- C++17 compatible compiler (GCC 8+, Clang 7+)
+- C++20 compatible compiler (GCC 8+, Clang 7+)
 - Mobilus Cosmo GTW firmware version ≥ 0.1.7.8
 - OpenSSL v3
 
