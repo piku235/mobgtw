@@ -9,8 +9,8 @@ namespace jungi::mobgtw {
 
 namespace ProtoUtils {
 
-    uint8_t messageTypeFor(const google::protobuf::MessageLite& message);
-    std::unique_ptr<google::protobuf::MessageLite> newMessageFor(uint8_t messageType);
+    [[nodiscard]] uint8_t messageTypeFor(const google::protobuf::MessageLite& message);
+    [[nodiscard]] std::unique_ptr<google::protobuf::MessageLite> newMessageFor(uint8_t messageType);
 
 }
 

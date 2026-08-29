@@ -6,7 +6,7 @@
 
 namespace jungi::mobgtw {
 
-class Error final {
+class [[nodiscard]] Error final {
 public:
     static Error InvalidSession(std::string message) { return { ErrorCode::InvalidSession, std::move(message) }; }
     static Error NoSession(std::string message) { return { ErrorCode::NoSession, std::move(message) }; }
@@ -21,8 +21,8 @@ public:
     static Error ConnectionTimeout(std::string message) { return { ErrorCode::ConnectionTimeout, std::move(message) }; }
     static Error ConnectionRefused(std::string message) { return { ErrorCode::ConnectionRefused, std::move(message) }; }
 
-    ErrorCode code() const { return mCode; }
-    const std::string& message() const { return mMessage; }
+    [[nodiscard]] ErrorCode code() const { return mCode; }
+    [[nodiscard]] const std::string& message() const { return mMessage; }
 
 private:
     /* const */ ErrorCode mCode;

@@ -2,7 +2,6 @@
 #include "crypto/EvpEncryptor.h"
 #include "crypto/hash.h"
 #include "crypto/utils.h"
-#include "jungi/mobgtw/EventNumber.h"
 #include "jungi/mobgtw/MessageType.h"
 #include "jungi/mobgtw/Platform.h"
 #include "jungi/mobgtw/ProtoUtils.h"
@@ -140,10 +139,10 @@ void MockMqttMobilusActorImpl::handleSocketEvents(SocketEvents revents)
     }
 }
 
-bool MockMqttMobilusActorImpl::send(const std::string& topic, const google::protobuf::MessageLite& message, const crypto::bytes& key)
+void MockMqttMobilusActorImpl::send(const std::string& topic, const google::protobuf::MessageLite& message, const crypto::bytes& key)
 {
     if (nullptr == mMosq) {
-        return false;
+        return;
     }
 
     auto envelope = envelopeFor(message);
@@ -151,13 +150,7 @@ bool MockMqttMobilusActorImpl::send(const std::string& topic, const google::prot
     envelope.messageBody = kEncryptor.encrypt(envelope.messageBody, key, crypto::timestamp2iv(envelope.timestamp));
     auto serialized = envelope.serialize();
 
-    int rc = mosquitto_publish(mMosq, nullptr, topic.c_str(), serialized.size(), serialized.data(), 0, false);
-
-    if (MOSQ_ERR_SUCCESS != rc) {
-        return false;
-    }
-
-    return true;
+    mosquitto_publish(mMosq, nullptr, topic.c_str(), serialized.size(), serialized.data(), 0, false);
 }
 
 void MockMqttMobilusActorImpl::onMessage(const mosquitto_message* message)
@@ -248,12 +241,12 @@ Envelope MockMqttMobilusActorImpl::envelopeFor(const google::protobuf::MessageLi
     message.SerializeToArray(messageBody.data(), message.ByteSize());
 
     return {
-        ProtoUtils::messageTypeFor(message),
-        static_cast<uint32_t>(time(nullptr)),
-        kClientIdBinary,
-        Platform::Host,
-        0,
-        messageBody,
+        .messageType = ProtoUtils::messageTypeFor(message),
+        .timestamp = static_cast<uint32_t>(time(nullptr)),
+        .clientId = kClientIdBinary,
+        .platform = Platform::Host,
+        .responseStatus = 0,
+        .messageBody = messageBody,
     };
 }
 

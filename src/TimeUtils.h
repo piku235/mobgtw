@@ -8,7 +8,7 @@ namespace jungi::mobgtw {
 namespace TimeUtils {
 
     template <class Rep, class Period>
-    timeval convertToTimeval(std::chrono::duration<Rep, Period> duration)
+    [[nodiscard]] timeval convertToTimeval(std::chrono::duration<Rep, Period> duration)
     {
         auto secs = std::chrono::duration_cast<std::chrono::seconds>(duration);
         auto microsecs = std::chrono::duration_cast<std::chrono::microseconds>(duration - secs);

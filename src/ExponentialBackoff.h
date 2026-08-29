@@ -11,7 +11,7 @@ public:
 
     void next();
     void reset();
-    std::chrono::milliseconds delay() const;
+    [[nodiscard]] std::chrono::milliseconds delay() const;
 
 private:
     std::chrono::milliseconds mBaseDelay;

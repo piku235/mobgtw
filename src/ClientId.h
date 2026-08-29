@@ -6,15 +6,15 @@
 
 namespace jungi::mobgtw {
 
-class ClientId {
+class [[nodiscard]] ClientId {
 public:
     using value_t = decltype(Envelope::clientId);
 
     static ClientId unique();
     static ClientId from(value_t value);
 
-    const value_t& value() const;
-    std::string toHex() const;
+    [[nodiscard]] const value_t& value() const;
+    [[nodiscard]] std::string toHex() const;
 
 private:
     value_t mValue;

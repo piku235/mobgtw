@@ -5,6 +5,6 @@
 
 namespace jungi::mobgtw::crypto {
 
-bytes sha256(const std::string& text);
+[[nodiscard]] bytes sha256(const std::string& text);
 
 }

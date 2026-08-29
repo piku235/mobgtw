@@ -12,7 +12,7 @@ public:
 
     void wait();
     void notify() { mCondition = true; }
-    bool condition() const { return mCondition; }
+    [[nodiscard]] bool condition() const { return mCondition; }
 
 private:
     io::SocketEventHandler& mSocketEventHandler;

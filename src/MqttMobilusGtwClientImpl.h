@@ -32,7 +32,7 @@ class MqttMobilusGtwClientImpl final : public MqttMobilusGtwClient,
                                        public io::SocketEventHandler {
 public:
     MqttMobilusGtwClientImpl(MqttDsn dsn, MobilusCredentials mobilusCreds, std::chrono::milliseconds conenctTimeout, std::chrono::milliseconds responseTimeout, io::EventLoop& loop = io::NullEventLoop::instance(), logging::Logger& logger = logging::NullLogger::instance());
-    ~MqttMobilusGtwClientImpl();
+    ~MqttMobilusGtwClientImpl() override;
 
     void useKeepAliveMessage(std::unique_ptr<google::protobuf::MessageLite> message);
     void onSessionExpiring(SessionExpiringCallback callback);
@@ -47,8 +47,8 @@ public:
     Result<> sendRequest(const proto::NetworkSettingsRequest& request, proto::NetworkSettingsResponse& response) override;
     Result<> sendRequest(const proto::UpdateDeviceRequest& request, proto::UpdateDeviceResponse& response) override;
 
-    MessageBus& messageBus() override { return mMessageBus; }
-    const std::optional<SessionInformation>& sessionInfo() const override { return mSessionInfo; }
+    [[nodiscard]] MessageBus& messageBus() override { return mMessageBus; }
+    [[nodiscard]] const std::optional<SessionInformation>& sessionInfo() const override { return mSessionInfo; }
 
     // SocketEventHandler
     io::SocketEvents socketEvents() override;
@@ -105,8 +105,9 @@ private:
     static void onMessageCallback(mosquitto* mosq, void* obj, const mosquitto_message* mosqMessage);
     static void reconnectTimerCallback(void* callbackData) { reinterpret_cast<MqttMobilusGtwClientImpl*>(callbackData)->reconnect(); };
     static void miscTimerCallback(void* callbackData) { reinterpret_cast<MqttMobilusGtwClientImpl*>(callbackData)->handleMisc(); };
+    [[nodiscard]] static std::string explainConnackCode(int code);
 
-    int connectMqtt();
+    [[nodiscard]] int connectMqtt();
     void reconnect();
     Result<> send(const google::protobuf::MessageLite& message, int qos);
     Result<> sendRequest(const google::protobuf::MessageLite& request, google::protobuf::MessageLite& response, const std::vector<uint8_t>& key);
@@ -121,8 +122,7 @@ private:
     void handleMisc();
     void dispatchQueuedMessages();
     void scheduleMisc();
-    Envelope envelopeFor(const google::protobuf::MessageLite& message);
-    std::string explainConnackCode(int code);
+    [[nodiscard]] Envelope envelopeFor(const google::protobuf::MessageLite& message);
 
     tl::unexpected<Error> logAndReturn(Error error)
     {

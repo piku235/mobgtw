@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SocketEventHandler.h"
-#include "SocketEvents.h"
 
 #include <chrono>
 
@@ -15,7 +14,7 @@ public:
     static constexpr TimerId kInvalidTimerId = -1;
 
     virtual ~EventLoop() = default;
-    virtual TimerId startTimer(std::chrono::milliseconds delay, TimerCallback callback, void* callbackData) = 0;
+    [[nodiscard]] virtual TimerId startTimer(std::chrono::milliseconds delay, TimerCallback callback, void* callbackData) = 0;
     virtual void stopTimer(TimerId id) = 0;
     virtual void watchSocket(int socketFd, SocketEventHandler* handler) = 0;
     virtual void unwatchSocket(int socketFd) = 0;

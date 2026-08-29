@@ -6,7 +6,7 @@
 
 namespace jungi::mobgtw {
 
-struct MqttDsn final {
+struct [[nodiscard]] MqttDsn final {
     bool secure;
     std::optional<std::string> username;
     std::optional<std::string> password;
@@ -15,7 +15,7 @@ struct MqttDsn final {
     std::optional<std::string> cacert;
     std::optional<bool> verify;
 
-    static std::optional<MqttDsn> from(const std::string& dsn);
+    [[nodiscard]] static std::optional<MqttDsn> from(const std::string& dsn);
 };
 
 }

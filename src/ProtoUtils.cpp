@@ -1,5 +1,4 @@
 #include "jungi/mobgtw/ProtoUtils.h"
-#include "jungi/mobgtw/EventNumber.h"
 #include "jungi/mobgtw/MessageType.h"
 #include "jungi/mobgtw/proto/CallEvents.pb.h"
 #include "jungi/mobgtw/proto/CurrentStateRequest.pb.h"

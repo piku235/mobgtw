@@ -5,6 +5,6 @@
 
 namespace jungi::mobgtw::crypto {
 
-bytes timestamp2iv(const time_t timestamp);
+[[nodiscard]] bytes timestamp2iv(time_t timestamp);
 
 }

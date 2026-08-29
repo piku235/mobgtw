@@ -243,7 +243,7 @@ void MqttMobilusGtwClientImpl::handleMisc()
 
 void MqttMobilusGtwClientImpl::onConnectCallback(mosquitto*, void* obj, int returnCode)
 {
-    auto ctx = reinterpret_cast<ConnectCallbackContext*>(obj);
+    auto ctx = static_cast<ConnectCallbackContext*>(obj);
 
     if (!ctx) {
         return;
@@ -255,7 +255,7 @@ void MqttMobilusGtwClientImpl::onConnectCallback(mosquitto*, void* obj, int retu
 
 void MqttMobilusGtwClientImpl::onMessageCallback(mosquitto*, void* obj, const mosquitto_message* mosqMessage)
 {
-    auto self = reinterpret_cast<MqttMobilusGtwClientImpl*>(obj);
+    auto self = static_cast<MqttMobilusGtwClientImpl*>(obj);
 
     if (!self) {
         return;
@@ -376,7 +376,7 @@ void MqttMobilusGtwClientImpl::onMessage(const mosquitto_message* mosqMessage)
 
 void MqttMobilusGtwClientImpl::onGeneralMessage(const mosquitto_message* mosqMessage)
 {
-    auto envelope = Envelope::deserialize(reinterpret_cast<uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen));
+    auto envelope = Envelope::deserialize(static_cast<uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen));
     if (!envelope) {
         mLogger.error("Received invalid message of size: " + std::to_string(mosqMessage->payloadlen));
         return;
@@ -422,7 +422,7 @@ void MqttMobilusGtwClientImpl::onGeneralMessage(const mosquitto_message* mosqMes
 void MqttMobilusGtwClientImpl::onExpectedResponse(ExpectedResponse& expectedResponse, const mosquitto_message* mosqMessage)
 {
     auto& cond = expectedResponse.cond;
-    auto envelope = Envelope::deserialize(reinterpret_cast<uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen));
+    auto envelope = Envelope::deserialize(static_cast<uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen));
 
     if (!envelope) {
         expectedResponse.error = Error::InvalidMessage("Received invalid message of size: " + std::to_string(mosqMessage->payloadlen));
@@ -540,7 +540,7 @@ int MqttMobilusGtwClientImpl::connectMqtt()
         if (MOSQ_ERR_SUCCESS != (rc = mosquitto_tls_set(mMosq, mDsn.cacert ? mDsn.cacert->c_str() : nullptr, nullptr, nullptr, nullptr, nullptr))) {
             return rc;
         }
-        if (MOSQ_ERR_SUCCESS != (rc = mosquitto_tls_insecure_set(mMosq, mDsn.verify.value_or(true) ? false : true))) {
+        if (MOSQ_ERR_SUCCESS != (rc = mosquitto_tls_insecure_set(mMosq, !mDsn.verify.value_or(true)))) {
             return rc;
         }
     }
@@ -552,7 +552,7 @@ int MqttMobilusGtwClientImpl::connectMqtt()
 
     mosquitto_connect_callback_set(mMosq, onConnectCallback);
 
-    return mosquitto_connect(mMosq, mDsn.host.c_str(), static_cast<int>(*mDsn.port), kKeepAliveIntervalSecs);
+    return mosquitto_connect(mMosq, mDsn.host.c_str(), *mDsn.port, kKeepAliveIntervalSecs);
 }
 
 void MqttMobilusGtwClientImpl::reconnect()
@@ -605,12 +605,12 @@ Envelope MqttMobilusGtwClientImpl::envelopeFor(const google::protobuf::MessageLi
     message.SerializeToArray(messageBody.data(), message.ByteSize());
 
     return {
-        ProtoUtils::messageTypeFor(message),
-        static_cast<uint32_t>(time(nullptr)),
-        mClientId.value(),
-        Platform::Web,
-        0,
-        messageBody,
+        .messageType = ProtoUtils::messageTypeFor(message),
+        .timestamp = static_cast<uint32_t>(time(nullptr)),
+        .clientId = mClientId.value(),
+        .platform = Platform::Web,
+        .responseStatus = 0,
+        .messageBody = messageBody,
     };
 }
 

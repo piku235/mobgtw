@@ -91,14 +91,4 @@ uint32_t Envelope::size() const
         + messageBody.size());
 }
 
-bool Envelope::operator==(const Envelope& other) const
-{
-    return messageType == other.messageType
-        && timestamp == other.timestamp
-        && clientId == other.clientId
-        && platform == other.platform
-        && responseStatus == other.responseStatus
-        && messageBody == other.messageBody;
-}
-
 }

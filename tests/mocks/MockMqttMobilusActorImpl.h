@@ -2,7 +2,6 @@
 
 #include "crypto/Encryptor.h"
 #include "jungi/mobgtw/Envelope.h"
-#include "jungi/mobgtw/MessageType.h"
 #include "jungi/mobgtw/io/SocketEvents.h"
 
 #include <google/protobuf/message_lite.h>
@@ -12,7 +11,6 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <unordered_map>
 
 static constexpr char kClientId[] = "123456789ABC";
@@ -31,10 +29,6 @@ class CallEvents;
 
 namespace jungi::mobgtw::tests::mocks {
 
-namespace proto = jungi::mobgtw::proto;
-namespace io = jungi::mobgtw::io;
-namespace crypto = jungi::mobgtw::crypto;
-
 class MockMqttMobilusActorImpl final {
 public:
     enum class Commands {
@@ -45,10 +39,10 @@ public:
 
     struct Command {
         virtual ~Command() = default;
-        virtual Commands commandId() const = 0;
+        [[nodiscard]] virtual Commands commandId() const = 0;
     };
 
-    struct ReplyClientCommand final : public Command {
+    struct ReplyClientCommand final : Command {
         std::unique_ptr<const google::protobuf::MessageLite> message;
 
         explicit ReplyClientCommand(std::unique_ptr<const google::protobuf::MessageLite> aMessage)
@@ -56,10 +50,10 @@ public:
         {
         }
 
-        Commands commandId() const { return Commands::ReplyClient; }
+        Commands commandId() const override { return Commands::ReplyClient; }
     };
 
-    struct ShareMessageCommand final : public Command {
+    struct ShareMessageCommand final : Command {
         std::unique_ptr<const google::protobuf::MessageLite> message;
 
         explicit ShareMessageCommand(std::unique_ptr<const google::protobuf::MessageLite> aMessage)
@@ -67,10 +61,10 @@ public:
         {
         }
 
-        Commands commandId() const { return Commands::ShareMessage; }
+        Commands commandId() const override { return Commands::ShareMessage; }
     };
 
-    struct MockResponseCommand final : public Command {
+    struct MockResponseCommand final : Command {
         uint8_t requestType;
         std::unique_ptr<const google::protobuf::MessageLite> response;
 
@@ -80,7 +74,7 @@ public:
         {
         }
 
-        Commands commandId() const { return Commands::MockResponse; }
+        Commands commandId() const override { return Commands::MockResponse; }
     };
 
     MockMqttMobilusActorImpl(std::string host, uint16_t port);
@@ -91,8 +85,8 @@ public:
     void handle(ShareMessageCommand& cmd);
     void handle(MockResponseCommand& cmd);
 
-    int socketFd();
-    io::SocketEvents socketEvents();
+    [[nodiscard]] int socketFd();
+    [[nodiscard]] io::SocketEvents socketEvents();
     void handleSocketEvents(io::SocketEvents revents);
 
 private:
@@ -106,14 +100,13 @@ private:
     MockResponseMap mMockResponses;
     std::string mLoggedClientId;
 
-    static void onMessageCallback(mosquitto* mosq, void* self, const mosquitto_message* message) { reinterpret_cast<MockMqttMobilusActorImpl*>(self)->onMessage(message); }
-    void onMessage(const mosquitto_message* message);
+    static void onMessageCallback(mosquitto*, void* self, const mosquitto_message* message) { static_cast<MockMqttMobilusActorImpl*>(self)->onMessage(message); }
+    [[nodiscard]] static crypto::bytes randomKey();
+    [[nodiscard]] static Envelope envelopeFor(const google::protobuf::MessageLite& message);
 
-    bool send(const std::string& topic, const google::protobuf::MessageLite& message, const crypto::bytes& key);
-    crypto::bytes randomKey();
-    Envelope envelopeFor(const google::protobuf::MessageLite& message);
+    void send(const std::string& topic, const google::protobuf::MessageLite& message, const crypto::bytes& key);
+    void onMessage(const mosquitto_message* message);
     void handleLoginRequest(const Envelope& envelope);
-    void handleCallEvents(const Envelope& envelope);
     void handleMockResponse(const Envelope& envelope);
 };
 

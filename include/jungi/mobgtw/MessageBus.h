@@ -5,9 +5,9 @@
 
 #include <google/protobuf/message_lite.h>
 
+#include <concepts>
 #include <cstdint>
 #include <functional>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -21,7 +21,7 @@ public:
         subscribers.push_back(std::move(subscriber));
     }
 
-    template <class T, class = std::enable_if_t<std::is_base_of_v<google::protobuf::MessageLite, T>>>
+    template <std::derived_from<google::protobuf::MessageLite> T>
     void subscribe(std::function<void(const T&)> subscriber)
     {
         auto messageType = ProtoUtils::messageTypeFor(T::default_instance());

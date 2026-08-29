@@ -67,8 +67,8 @@ public:
         std::optional<RawMessageCallback> mRawMessageCallback;
     };
 
-    static std::unique_ptr<MqttMobilusGtwClient> from(MqttDsn dsn, MobilusCredentials mobilusCredentials);
-    static Builder builder();
+    [[nodiscard]] static std::unique_ptr<MqttMobilusGtwClient> from(MqttDsn dsn, MobilusCredentials mobilusCredentials);
+    [[nodiscard]] static Builder builder();
 
     virtual ~MqttMobilusGtwClient() = default;
 
@@ -81,8 +81,8 @@ public:
     virtual Result<> sendRequest(const proto::NetworkSettingsRequest& request, proto::NetworkSettingsResponse& response) = 0;
     virtual Result<> sendRequest(const proto::UpdateDeviceRequest& request, proto::UpdateDeviceResponse& response) = 0;
 
-    virtual MessageBus& messageBus() = 0;
-    virtual const std::optional<SessionInformation>& sessionInfo() const = 0;
+    [[nodiscard]] virtual MessageBus& messageBus() = 0;
+    [[nodiscard]] virtual const std::optional<SessionInformation>& sessionInfo() const = 0;
 };
 
 }
