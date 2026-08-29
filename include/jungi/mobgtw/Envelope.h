@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <vector>
 
 namespace jungi::mobgtw {
@@ -20,7 +21,7 @@ struct [[nodiscard]] Envelope final {
     uint8_t responseStatus;
     std::vector<uint8_t> messageBody;
 
-    [[nodiscard]] static std::optional<Envelope> deserialize(const uint8_t* payload, uint32_t size);
+    [[nodiscard]] static std::optional<Envelope> deserialize(std::span<const uint8_t> serialized);
     [[nodiscard]] std::vector<uint8_t> serialize() const;
 
     [[nodiscard]] uint32_t size() const;

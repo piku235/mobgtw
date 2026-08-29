@@ -62,7 +62,7 @@ TEST(EnvelopeTest, SerializesAndDeserializes)
     Envelope envelope = envelopeStub();
 
     auto serialized = envelope.serialize();
-    auto deserialized = Envelope::deserialize(serialized.data(), serialized.size());
+    auto deserialized = Envelope::deserialize({serialized.data(), serialized.size()});
 
     ASSERT_EQ(envelope.size() + sizeof(uint32_t), serialized.size()); // sizeof(uint32_t) - extra space for message size
     ASSERT_TRUE(deserialized.has_value());
@@ -72,7 +72,7 @@ TEST(EnvelopeTest, SerializesAndDeserializes)
 TEST(EnvelopeTest, DeserializeFailsForTooSmallPayload)
 {
     uint8_t payload[] = { 0x11, 0x12, 0x13 };
-    auto deserialized = Envelope::deserialize(payload, sizeof(payload));
+    auto deserialized = Envelope::deserialize({payload, sizeof(payload)});
 
     ASSERT_FALSE(deserialized.has_value());
 }
@@ -83,7 +83,7 @@ TEST(EnvelopeTest, DeserializeFailsDueToSizeMismatch)
     uint32_t messageSize = htonl(123);
     memcpy(payload, &messageSize, sizeof(messageSize));
 
-    auto deserialized = Envelope::deserialize(payload, sizeof(payload));
+    auto deserialized = Envelope::deserialize({payload, sizeof(payload)});
 
     ASSERT_FALSE(deserialized.has_value());
 }

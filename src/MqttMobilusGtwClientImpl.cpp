@@ -376,7 +376,7 @@ void MqttMobilusGtwClientImpl::onMessage(const mosquitto_message* mosqMessage)
 
 void MqttMobilusGtwClientImpl::onGeneralMessage(const mosquitto_message* mosqMessage)
 {
-    auto envelope = Envelope::deserialize(static_cast<uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen));
+    auto envelope = Envelope::deserialize({ static_cast<const uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen) });
     if (!envelope) {
         mLogger.error("Received invalid message of size: " + std::to_string(mosqMessage->payloadlen));
         return;
@@ -422,7 +422,7 @@ void MqttMobilusGtwClientImpl::onGeneralMessage(const mosquitto_message* mosqMes
 void MqttMobilusGtwClientImpl::onExpectedResponse(ExpectedResponse& expectedResponse, const mosquitto_message* mosqMessage)
 {
     auto& cond = expectedResponse.cond;
-    auto envelope = Envelope::deserialize(static_cast<uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen));
+    auto envelope = Envelope::deserialize({ static_cast<const uint8_t*>(mosqMessage->payload), static_cast<uint32_t>(mosqMessage->payloadlen) });
 
     if (!envelope) {
         expectedResponse.error = Error::InvalidMessage("Received invalid message of size: " + std::to_string(mosqMessage->payloadlen));

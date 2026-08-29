@@ -5,25 +5,25 @@
 
 namespace jungi::mobgtw {
 
-std::optional<Envelope> Envelope::deserialize(const uint8_t* payload, uint32_t size)
+std::optional<Envelope> Envelope::deserialize(std::span<const uint8_t> serialized)
 {
     Envelope envelope;
 
     // is lower than min size
-    if (size < envelope.size()) {
+    if (serialized.size() < envelope.size()) {
         return std::nullopt;
     }
 
     uint32_t messageSize;
 
-    const uint8_t* offset = payload;
+    const uint8_t* offset = serialized.data();
 
     memcpy(&messageSize, offset, sizeof(messageSize));
     messageSize = ntohl(messageSize);
     offset += sizeof(messageSize);
 
     // size mismtach
-    if (messageSize + sizeof(messageSize) != size) {
+    if (messageSize + sizeof(messageSize) != serialized.size()) {
         return std::nullopt;
     }
 
@@ -55,7 +55,7 @@ std::vector<uint8_t> Envelope::serialize() const
     std::vector<uint8_t> payload(aSize + sizeof(aSize));
     uint8_t* offset = payload.data();
 
-    auto nSize = htonl(static_cast<uint32_t>(aSize));
+    auto nSize = htonl(aSize);
     memcpy(offset, &nSize, sizeof(nSize));
     offset += sizeof(nSize);
 

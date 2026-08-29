@@ -155,7 +155,7 @@ void MockMqttMobilusActorImpl::send(const std::string& topic, const google::prot
 
 void MockMqttMobilusActorImpl::onMessage(const mosquitto_message* message)
 {
-    auto envelope = Envelope::deserialize(reinterpret_cast<uint8_t*>(message->payload), message->payloadlen);
+    auto envelope = Envelope::deserialize({ static_cast<const uint8_t*>(message->payload), static_cast<uint32_t>(message->payloadlen) });
 
     if (!envelope) {
         return;
