@@ -20,6 +20,7 @@ target_include_directories(tests
 
 target_link_libraries(tests
   PRIVATE
+    libmosquitto_static
     mocks
     mobgtw
     GTest::gtest_main
