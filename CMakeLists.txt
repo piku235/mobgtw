@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(mobgtw VERSION 0.10.0)
+project(mobgtw VERSION 0.10.1)
 
 cmake_policy(SET CMP0135 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
@@ -46,7 +46,7 @@ FetchContent_Declare(
   EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(mosquitto)
-target_include_directories(libmosquitto_static INTERFACE ${mosquitto_SOURCE_DIR}/lib)
+target_include_directories(libmosquitto_static SYSTEM INTERFACE ${mosquitto_SOURCE_DIR}/include)
 
 add_subdirectory(proto)
 add_subdirectory(src/crypto)
