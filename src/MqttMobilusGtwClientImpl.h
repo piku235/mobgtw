@@ -97,7 +97,7 @@ private:
     ExpectedResponse* mExpectedResponse = nullptr;
     bool mConnected = false;
     bool mReconnecting = false;
-    ExponentialBackoff mReconnectDelay = { std::chrono::milliseconds(100), std::chrono::minutes(2) };
+    ExponentialBackoff mReconnectBackoff = { std::chrono::milliseconds(100), std::chrono::minutes(2) };
     io::EventLoop::TimerId mReconnectTimerId = io::EventLoop::kInvalidTimerId;
     io::EventLoop::TimerId mMiscTimerId = io::EventLoop::kInvalidTimerId;
 

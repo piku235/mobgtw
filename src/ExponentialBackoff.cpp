@@ -5,11 +5,10 @@
 
 namespace jungi::mobgtw {
 
-ExponentialBackoff::ExponentialBackoff(std::chrono::milliseconds baseDelay, std::chrono::milliseconds maxDelay, uint8_t factor)
+ExponentialBackoff::ExponentialBackoff(std::chrono::milliseconds baseDelay, std::chrono::milliseconds maxDelay)
     : mBaseDelay(baseDelay)
     , mDelay(baseDelay)
     , mMaxDelay(maxDelay)
-    , mFactor(factor)
     , mGenerator(std::random_device {}())
 {
 }
